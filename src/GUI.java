@@ -3,6 +3,7 @@ import  java.awt.geom.*;
 import  java.awt.event.*;
 import  java.io.*;
 import  javax.swing.*;
+import javax.swing.border.Border;
 import  javax.swing.event.*;
 import  java.awt.image.*;
 import  javax.imageio.*;
@@ -17,10 +18,10 @@ public class GUI {
     int  yPad;
     int  thickness;
     boolean pressed=false;
-
+    int del; //для яркости
     int x,y,wx,wy; //для кадрирования
     int n;
-
+    int delta; //для rgb
     MyFrame f;
     Color maincolor;
 
@@ -111,6 +112,7 @@ public class GUI {
         };
         JMenuItem loadMenu = new  JMenuItem(loadAction);
         fileMenu.add(loadMenu);
+
         Action drawing = new AbstractAction("Инструменты") {
             public void actionPerformed(ActionEvent e) {
                 JButton colbutton = new  JButton(new ImageIcon("image/colorbotle 15.40.12.png"));
@@ -203,11 +205,18 @@ public class GUI {
                     }
                 });
                 f.add(rectbutton);
+                f.repaint();
+            }
+        };
+        JMenuItem drawMenu = new JMenuItem(drawing);
+        draw.add(drawMenu);
 
+        Action colorAction = new AbstractAction("Цвета") {
+            public void actionPerformed(ActionEvent e) {
 
                 JButton redbutton = new  JButton();
                 redbutton.setBackground(Color.RED);
-                redbutton.setBounds(10, 50, 15, 15);
+                redbutton.setBounds(10, 60, 20, 20);
                 redbutton.addActionListener(new  ActionListener()
                 {
                     public void actionPerformed(ActionEvent event)
@@ -220,7 +229,7 @@ public class GUI {
 
                 JButton orangebutton = new  JButton();
                 orangebutton.setBackground(Color.orange);
-                orangebutton.setBounds(10, 90, 15, 15);
+                orangebutton.setBounds(10, 100, 20, 20);
                 orangebutton.addActionListener(new  ActionListener()
                 {
                     public void actionPerformed(ActionEvent event)
@@ -233,7 +242,7 @@ public class GUI {
 
                 JButton yellowbutton = new  JButton();
                 yellowbutton.setBackground(Color.YELLOW);
-                yellowbutton.setBounds(10, 130, 15, 15);
+                yellowbutton.setBounds(10, 140, 20, 20);
                 yellowbutton.addActionListener(new  ActionListener()
                 {
                     public void actionPerformed(ActionEvent event)
@@ -246,7 +255,7 @@ public class GUI {
 
                 JButton greenbutton = new  JButton();
                 greenbutton.setBackground(Color.green);
-                greenbutton.setBounds(10, 170, 15, 15);
+                greenbutton.setBounds(10, 180, 20, 20);
                 greenbutton.addActionListener(new  ActionListener()
                 {
                     public void actionPerformed(ActionEvent event)
@@ -259,7 +268,7 @@ public class GUI {
 
                 JButton bluebutton = new JButton();
                 bluebutton.setBackground(Color.blue);
-                bluebutton.setBounds(10, 210, 15, 15);
+                bluebutton.setBounds(10, 220, 20, 20);
                 bluebutton.addActionListener(new  ActionListener()
                 {
                     public void actionPerformed(ActionEvent event)
@@ -273,7 +282,7 @@ public class GUI {
 
                 JButton cyanbutton = new  JButton();
                 cyanbutton.setBackground(Color.cyan);
-                cyanbutton.setBounds(10, 250, 15, 15);
+                cyanbutton.setBounds(10, 260, 20, 20);
                 cyanbutton.addActionListener(new  ActionListener()
                 {
                     public void actionPerformed(ActionEvent event)
@@ -286,7 +295,7 @@ public class GUI {
 
                 JButton magentabutton = new  JButton();
                 magentabutton.setBackground(Color.magenta);
-                magentabutton.setBounds(10, 290, 15, 15);
+                magentabutton.setBounds(10, 300, 20, 20);
                 magentabutton.addActionListener(new  ActionListener()
                 {
                     public void actionPerformed(ActionEvent event)
@@ -300,7 +309,7 @@ public class GUI {
 
                 JButton whitebutton = new  JButton();
                 whitebutton.setBackground(Color.white);
-                whitebutton.setBounds(10, 330, 15, 15);
+                whitebutton.setBounds(10, 340, 20, 20);
                 whitebutton.addActionListener(new  ActionListener()
                 {
                     public void actionPerformed(ActionEvent event)
@@ -314,7 +323,7 @@ public class GUI {
 
                 JButton blackbutton = new  JButton();
                 blackbutton.setBackground(Color.black);
-                blackbutton.setBounds(10, 370, 15, 15);
+                blackbutton.setBounds(10, 380, 20, 20);
                 blackbutton.addActionListener(new  ActionListener()
                 {
                     public void actionPerformed(ActionEvent event)
@@ -326,9 +335,11 @@ public class GUI {
                 f.add(blackbutton);
                 f.repaint();
             }
+
         };
-        JMenuItem drawMenu = new JMenuItem(drawing);
-        draw.add(drawMenu);
+
+        JMenuItem colorMenu = new JMenuItem(colorAction);
+        draw.add(colorMenu);
 
 
 
@@ -440,6 +451,56 @@ public class GUI {
         JMenuItem saveasMenu = new  JMenuItem(saveasAction);
         fileMenu.add(saveasMenu);
 
+
+        Action brightAction = new AbstractAction("Яркость") {
+            public void actionPerformed(ActionEvent e) {
+
+                    JSlider slider = new JSlider(-12,12,0);
+                    JFrame frame = new JFrame();
+                    frame.setTitle("Яркость");
+                    frame.setBounds(70,150,250,100);
+                    JPanel contents = new JPanel();
+                    contents.add(slider);
+                    frame.add(contents);
+                    frame.setVisible(true);
+                    slider.addChangeListener(new ChangeListener() {
+                        public void stateChanged(ChangeEvent e) {
+                            JSlider slider = (JSlider)e.getSource();
+                            del = slider.getValue();
+                            //System.out.print(del);
+                            pixels = copyFromBufferedImage(imag);
+//                            System.out.println(pixels[1]);
+                            for(int i = 0; i < height; i++)
+                                for (int j = 0; j < width; j++){
+                                    int R;
+                                    int G;
+                                    int B;
+                                    R = (getRed(pixels[i * width + j]) + del);
+                                    //System.out.println(R);
+
+                                    G = (getGreen(pixels[i * width + j]) + del);
+                                    //System.out.println(G);
+                                    B = (getBlue(pixels[i * width + j]) + del);
+                                    //System.out.println(B);
+                                    //контролируем переполнение переменных
+                                    if (R < 0) R = 0;
+                                    if (R > 255) R = 255;
+                                    if (G < 0) G = 0;
+                                    if (G > 255) G = 255;
+                                    if (B < 0) B = 0;
+                                    if (B > 255) B = 255;
+
+                                    pixels[i * width + j] = (R << 16) | (G << 8) | (B);
+                                }
+                            imag = copyToBufferedImage(pixels);
+                            japan.repaint();
+                        }
+                    });
+                }
+        };
+
+        JMenuItem brightMenu = new JMenuItem(brightAction);
+        colorСorrection.add(brightMenu);
 
         Action cutAction = new AbstractAction("Кадрирование") {
             public void actionPerformed(ActionEvent e) {
@@ -554,21 +615,92 @@ public class GUI {
         JMenuItem sharpnessMenu = new JMenuItem(sharpnessAction);
         colorСorrection.add(sharpnessMenu);
 
-        Action greenAction = new AbstractAction("Зеленый -") {
+        Action greenAction = new AbstractAction("RGB") {
             public void actionPerformed(ActionEvent e) {
-                lastPixels = copyFromBufferedImage(imag);
-                pixels = copyFromBufferedImage(imag);
-                for (int i = 0; i < height; i++)
-                    for (int j = 0; j < width; j++) {
-                        int newGreen =  getGreen(pixels[i * width + j]) + (-100)/*delta(изменяемое для зеленого)*/;
-                        if (newGreen > 255) newGreen=255;  // Отсекаем при превышении границ байта
-                        if (newGreen < 0)   newGreen=0;
-                        // В итоговом пикселе R и B цвета оставляем без изменений: & 0xFF00FF
-                        // Полученный новый G (зеленый) засунем в "серединку" RGB: | (newGreen << 8)
-                        pixels[i * width + j] = pixels[i * width + j] & 0xFF00FF | (newGreen << 8);
+                JLabel red = new JLabel("Red");
+                JLabel green = new JLabel("Green");
+                JLabel blue = new JLabel("Blue");
+
+                JSlider sliderr = new JSlider(-50,50,0);
+
+                JSlider sliderg = new JSlider(-50,50,0);
+                JSlider sliderb = new JSlider(-50,50,0);
+                JFrame frame = new JFrame();
+                frame.setTitle("Red Green Blue");
+                frame.setBounds(70,150,250,100);
+                JPanel contents = new JPanel();
+                contents.setLayout(new GridLayout(3,2));
+                contents.add(red);
+                contents.add(sliderr);
+                contents.add(green);
+                contents.add(sliderg);
+                contents.add(blue);
+                contents.add(sliderb);
+                frame.add(contents);
+                frame.setVisible(true);
+                sliderg.addChangeListener(new ChangeListener() {
+                    public void stateChanged(ChangeEvent e) {
+                        JSlider slider = (JSlider)e.getSource();
+                        delta = slider.getValue();
+                        lastPixels = copyFromBufferedImage(imag);
+                        pixels = copyFromBufferedImage(imag);
+                        for (int i = 0; i < height; i++)
+                            for (int j = 0; j < width; j++) {
+                                int newGreen =  getGreen(pixels[i * width + j]) + delta/*delta(изменяемое для зеленого)*/;
+                                if (newGreen > 255) newGreen=255;  // Отсекаем при превышении границ байта
+                                if (newGreen < 0)   newGreen=0;
+                                // В итоговом пикселе R и B цвета оставляем без изменений: & 0xFF00FF
+                                // Полученный новый G (зеленый) засунем в "серединку" RGB: | (newGreen << 8)
+                                pixels[i * width + j] = pixels[i * width + j] & 0xFF00FF | (newGreen << 8);
+                            }
+                        imag = copyToBufferedImage(pixels);
+                        japan.repaint();
+                        delta = 0;
                     }
-                imag = copyToBufferedImage(pixels);
-                japan.repaint();
+                });
+
+                sliderr.addChangeListener(new ChangeListener() {
+                    public void stateChanged(ChangeEvent e) {
+                        JSlider slider = (JSlider)e.getSource();
+                        delta = slider.getValue();
+                        lastPixels = copyFromBufferedImage(imag);
+                        pixels = copyFromBufferedImage(imag);
+                        for (int i = 0; i < height; i++)
+                            for (int j = 0; j < width; j++) {
+                                int newRed =  getRed(pixels[i * width + j]) + delta/*delta(изменяемое для зеленого)*/;
+                                if (newRed > 255) newRed=255;  // Отсекаем при превышении границ байта
+                                if (newRed < 0)   newRed=0;
+                                // В итоговом пикселе R и B цвета оставляем без изменений: & 0xFF00FF
+                                // Полученный новый G (зеленый) засунем в "серединку" RGB: | (newGreen << 8)
+                                pixels[i * width + j] = pixels[i * width + j] & 0x00FFFF | (newRed << 16);
+                            }
+                        imag = copyToBufferedImage(pixels);
+                        japan.repaint();
+                        delta = 0;
+                    }
+                });
+
+                sliderb.addChangeListener(new ChangeListener() {
+                    public void stateChanged(ChangeEvent e) {
+                        JSlider slider = (JSlider)e.getSource();
+                        delta = slider.getValue();
+                        lastPixels = copyFromBufferedImage(imag);
+                        pixels = copyFromBufferedImage(imag);
+                        for (int i = 0; i < height; i++)
+                            for (int j = 0; j < width; j++) {
+                                int newBlue =  getBlue(pixels[i * width + j]) + delta/*delta(изменяемое для зеленого)*/;
+                                if (newBlue > 255) newBlue=255;  // Отсекаем при превышении границ байта
+                                if (newBlue < 0)   newBlue=0;
+                                // В итоговом пикселе R и B цвета оставляем без изменений: & 0xFF00FF
+                                // Полученный новый G (зеленый) засунем в "серединку" RGB: | (newGreen << 8)
+                                pixels[i * width + j] = pixels[i * width + j] & 0xFFFF00 | (newBlue);
+                            }
+                        imag = copyToBufferedImage(pixels);
+                        japan.repaint();
+                        delta = 0;
+                    }
+                });
+
             }
         };
         JMenuItem greenMenu = new JMenuItem(greenAction);
