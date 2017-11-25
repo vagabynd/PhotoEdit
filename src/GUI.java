@@ -95,9 +95,10 @@ public class GUI {
                         staticHeight = height;
                         staticWidth = width;
                         loading=true;
-                        f.setSize(width+40, width+80);
-                        japan.setSize(imag.getWidth(), imag.getWidth());
+                        f.setSize(width+80, height+120);
+                        japan.setSize(imag.getWidth(), imag.getHeight());
                         japan.repaint();
+                        f.repaint();
                     } catch (FileNotFoundException ex) {
                         JOptionPane.showMessageDialog(f, "Такого файла не существует");
 
@@ -502,6 +503,64 @@ public class GUI {
         JMenuItem brightMenu = new JMenuItem(brightAction);
         colorСorrection.add(brightMenu);
 
+
+        Action contrastAction = new AbstractAction("Контрастность") {
+            public void actionPerformed(ActionEvent e) {
+
+                JSlider slider = new JSlider(-12,12,0);
+                JFrame frame = new JFrame();
+                frame.setTitle("Контрастность");
+                frame.setBounds(70,150,250,100);
+                JPanel contents = new JPanel();
+                contents.add(slider);
+                frame.add(contents);
+                frame.setVisible(true);
+                slider.addChangeListener(new ChangeListener() {
+                    public void stateChanged(ChangeEvent e) {
+                        JSlider slider = (JSlider)e.getSource();
+                        del = slider.getValue();
+                        //System.out.print(del);
+                        pixels = copyFromBufferedImage(imag);
+//                            System.out.println(pixels[1]);
+                        for(int i = 0; i < height; i++)
+                            for (int j = 0; j < width; j++){
+                                int R;
+                                int G;
+                                int B;
+                                if (del >= 0)
+                                {
+                                    if (del == 100) del = 99;
+                                    R = ((getRed(pixels[i * width + j]) * 100 - 128 * del) / (100 - del));
+                                    G = ((getGreen(pixels[i * width + j]) * 100 - 128 * del) / (100 - del));
+                                    B = ((getBlue(pixels[i * width + j]) * 100 - 128 * del) / (100 - del));
+                                }
+                                else
+                                {
+                                    R = ((getRed(pixels[i * width + j]) * (100 - (-del)) + 128 * (-del)) / 100);
+                                    G = ((getGreen(pixels[i * width + j]) * (100 - (-del)) + 128 * (-del)) / 100);
+                                    B = ((getBlue(pixels[i * width + j]) * (100 - (-del)) + 128 * (-del)) / 100);
+                                }
+                                //контролируем переполнение переменных
+                                if (R < 0) R = 0;
+                                if (R > 255) R = 255;
+                                if (G < 0) G = 0;
+                                if (G > 255) G = 255;
+                                if (B < 0) B = 0;
+                                if (B > 255) B = 255;
+
+                                pixels[i * width + j] = (R << 16) | (G << 8) | (B);
+                            }
+                        imag = copyToBufferedImage(pixels);
+                        japan.repaint();
+                    }
+                });
+            }
+        };
+        JMenuItem contrastMenu = new JMenuItem(contrastAction);
+        colorСorrection.add(contrastMenu);
+
+
+
         Action cutAction = new AbstractAction("Кадрирование") {
             public void actionPerformed(ActionEvent e) {
                 lastPixels = copyFromBufferedImage(imag);
@@ -867,16 +926,15 @@ public class GUI {
                 }
             }
         });
-/*
-        //перетаскивание
 
+        //расширение
         f.addComponentListener(new  ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent evt) {
                 // если делаем загрузку, то изменение размеров формы
                 // отрабатываем в коде загрузки
                 if(loading==false)
                 {
-                    japan.setSize(f.getWidth()-40, f.getHeight()-80);
+                    japan.setSize(f.getWidth()-80, f.getHeight()-120);
                     BufferedImage tempImage = new  BufferedImage(japan.getWidth(), japan.getHeight(), BufferedImage.TYPE_INT_RGB);
                     Graphics2D d2 = (Graphics2D) tempImage.createGraphics();
                     d2.setColor(Color.white);
@@ -885,10 +943,9 @@ public class GUI {
                     imag=tempImage;
                     japan.repaint();
                 }
-                loading=false;
             }
         });
-*/
+
         f.setLayout(null);
         f.setVisible(true);
     }
