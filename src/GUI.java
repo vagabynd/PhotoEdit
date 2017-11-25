@@ -36,7 +36,7 @@ public class GUI {
     JButton colorbutton;
     private int     height;             // высота изображения
     private int     width;              // ширина изображения
-    private int     staticHeight;             // высота изображения
+    private int     staticHeight;
     private int     staticWidth;
     private int[]   pixels;             // собственно массив цветов точек составляющих изображение
     private int[]   staticPixels;       // массив пикселей для отмены рисования
@@ -69,6 +69,32 @@ public class GUI {
         menuBar.add(draw);
         JMenu change = new JMenu("Правка");
         menuBar.add(change);
+        JMenu help = new JMenu("Справка");
+        menuBar.add(help);
+
+        Action helpAction = new  AbstractAction("Помощь")
+        {
+            public void actionPerformed(ActionEvent event)
+            {
+                JOptionPane.showMessageDialog(f, "Увы, но я вам не помогу. Чтобы закрыть это окно нажмите ОК");
+
+            }
+        };
+        JMenuItem helpMenu = new  JMenuItem(helpAction);
+        help.add(helpMenu);
+
+        Action aboutAction = new  AbstractAction("О программе")
+        {
+            public void actionPerformed(ActionEvent event)
+            {
+                JOptionPane.showMessageDialog(f, "Хорошая программа");
+            }
+        };
+        JMenuItem aboutMenu = new  JMenuItem(aboutAction);
+        help.add(aboutMenu);
+
+
+
 
         Action loadAction = new  AbstractAction("Загрузить")
         {
@@ -87,7 +113,6 @@ public class GUI {
                         jf.addChoosableFileFilter(new TextFileFilter(".png"));
                         jf.addChoosableFileFilter(new TextFileFilter(".jpg"));
                         imag = ImageIO.read(iF);
-
 
                         height = imag.getHeight();
                         width = imag.getWidth();
@@ -470,7 +495,7 @@ public class GUI {
                             del = slider.getValue();
                             //System.out.print(del);
                             pixels = copyFromBufferedImage(imag);
-//                            System.out.println(pixels[1]);
+                            //System.out.println(pixels[1]);
                             for(int i = 0; i < height; i++)
                                 for (int j = 0; j < width; j++){
                                     int R;
@@ -674,6 +699,56 @@ public class GUI {
         JMenuItem sharpnessMenu = new JMenuItem(sharpnessAction);
         colorСorrection.add(sharpnessMenu);
 
+
+
+        Action blurAction = new AbstractAction("Размытие +") {
+            public void actionPerformed(ActionEvent e) {
+                lastPixels = copyFromBufferedImage(imag);
+                pixels = copyFromBufferedImage(imag);
+                // Чтобы работать с неизмененными данными скопируем в новый массив
+                int[] arrnew= Arrays.copyOf(pixels, width*height);
+
+                for (int j = 1; j < height-1; j++)
+                    for (int i = 1; i < width-1; i++) {
+                        // матрица свертки
+                        //  0.2 0.2 0.2
+                        //  0.2 0.2 0.2
+                        //  0.2 0.2 0.2
+                        int newRed=getRed(getPixel(i,j))*2/10 +
+                                (getRed(getPixel(i-1,j-1)) + getRed(getPixel(i-1,j)) + getRed(getPixel(i-1,j+1)) +
+                                        getRed(getPixel(i,j-1))   + getRed(getPixel(i,j+1)) +
+                                        getRed(getPixel(i+1,j-1)) + getRed(getPixel(i+1,j)) + getRed(getPixel(i+1,j+1)))/10;
+                        if (newRed > 255) newRed=255;  // Отсекаем при превышении границ байта
+                        if (newRed < 0)   newRed=0;
+
+                        int newGreen=getGreen(getPixel(i,j))*2/10 +
+                                (getGreen(getPixel(i-1,j-1)) + getGreen(getPixel(i-1,j)) + getGreen(getPixel(i-1,j+1)) +
+                                        getGreen(getPixel(i,j-1))   + getGreen(getPixel(i,j+1)) +
+                                        getGreen(getPixel(i+1,j-1)) + getGreen(getPixel(i+1,j)) + getGreen(getPixel(i+1,j+1)))/10;
+                        if (newGreen > 255) newGreen=255;  // Отсекаем при превышении границ байта
+                        if (newGreen < 0)   newGreen=0;
+
+                        int newBlue=getBlue(getPixel(i,j))*2/10 +
+                                (getBlue(getPixel(i-1,j-1)) + getBlue(getPixel(i-1,j)) + getBlue(getPixel(i-1,j+1)) +
+                                        getBlue(getPixel(i,j-1))   + getBlue(getPixel(i,j+1)) +
+                                        getBlue(getPixel(i+1,j-1)) + getBlue(getPixel(i+1,j)) + getBlue(getPixel(i+1,j+1)))/10;
+                        if (newBlue > 255) newBlue=255;  // Отсекаем при превышении границ байта
+                        if (newBlue < 0)   newBlue=0;
+
+                        arrnew[j * width + i] = newBlue + (newGreen << 8) + (newRed << 16);
+                    }
+                pixels = arrnew;
+                imag = copyToBufferedImage(pixels);
+                japan.repaint();
+            }
+        };
+        JMenuItem blurMenu = new JMenuItem(blurAction);
+        colorСorrection.add(blurMenu);
+
+
+
+
+
         Action greenAction = new AbstractAction("RGB") {
             public void actionPerformed(ActionEvent e) {
                 JLabel red = new JLabel("Red");
@@ -766,7 +841,7 @@ public class GUI {
         colorСorrection.add(greenMenu);
 
         japan = new  MyPanel();
-        japan.setBounds(50,50,f.getWidth()-100,f.getHeight()-150);
+        japan.setBounds(40,50,f.getWidth()-100,f.getHeight()-150);
         japan.setBackground(Color.white);
         japan.setOpaque(true);
         f.add(japan);
@@ -939,7 +1014,7 @@ public class GUI {
                     Graphics2D d2 = (Graphics2D) tempImage.createGraphics();
                     d2.setColor(Color.white);
                     d2.fillRect(0, 0, japan.getWidth(), japan.getHeight());
-                    tempImage.setData(imag.getRaster());
+                    //tempImage.setData(imag.getRaster());
                     imag=tempImage;
                     japan.repaint();
                 }
