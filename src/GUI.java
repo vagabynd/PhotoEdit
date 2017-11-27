@@ -9,6 +9,15 @@ import  java.awt.image.*;
 import  javax.imageio.*;
 import  javax.swing.filechooser.FileFilter;
 import java.util.Arrays;
+
+import org.opencv.core.*;
+import org.opencv.core.Point;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.CascadeClassifier;
+
+import static org.opencv.core.CvType.CV_8UC;
+
 public class GUI {
     int  rezhim=100;
     boolean loading=false;
@@ -16,8 +25,10 @@ public class GUI {
     int  xf;
     int  yf;
     int  yPad;
+    int faceX, faceY;
     int  thickness;
     boolean pressed=false;
+    boolean maska = false;
     int del; //для яркости
     int x,y,wx,wy; //для кадрирования
     int n;
@@ -27,7 +38,7 @@ public class GUI {
 
     MyPanel japan;
 
-    BufferedImage imag;
+    BufferedImage imag, cowboy;
     private String fileName;
 
     // если мы загружаем картинку
@@ -67,6 +78,8 @@ public class GUI {
 
         JMenu draw = new JMenu("Рисование");
         menuBar.add(draw);
+        JMenu masks = new JMenu("Маски");
+        menuBar.add(masks);
         JMenu change = new JMenu("Правка");
         menuBar.add(change);
         JMenu help = new JMenu("Справка");
@@ -92,6 +105,67 @@ public class GUI {
         };
         JMenuItem aboutMenu = new  JMenuItem(aboutAction);
         help.add(aboutMenu);
+
+
+
+        Action searchFaceAction = new  AbstractAction("Ковбой")
+        {
+            public void actionPerformed(ActionEvent event)
+            {
+                maska = true;
+                System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+                Mat image = bufferedImageToMat(imag);
+                MatOfRect faceDetections = new MatOfRect();
+                CascadeClassifier faceDetector = new CascadeClassifier("lib/lbpcascade_frontalface.xml");
+                faceDetector.detectMultiScale(image, faceDetections, 1.05, 4, 10, new Size(20,20), new Size(500,500));
+                System.out.println("Num of faces detected: " + faceDetections.toArray().length);
+                for (Rect rect : faceDetections.toArray()) {
+
+                    System.out.println(rect.x); //начало прямоугольника лица
+                    System.out.println(rect.y);
+                    faceX = rect.x;
+                    faceY = rect.y;
+                    //Imgproc.rectangle(image, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height),
+                      //      new Scalar(250, 100, 100), 2);
+                }
+
+                imag = convertMatToImage(image);
+
+
+
+                //JFileChooser jf= new  JFileChooser();
+                //int  result = jf.showOpenDialog(null);
+                //if(result==JFileChooser.APPROVE_OPTION)
+                //{
+                    try
+                    {
+                        // при выборе изображения подстраиваем размеры формы
+                        // и панели под размеры данного изображения
+                        fileName = "image/cowboy.png";
+                        File iF= new  File(fileName);
+                        //jf.addChoosableFileFilter(new TextFileFilter(".png"));
+                        //jf.addChoosableFileFilter(new TextFileFilter(".jpg"));
+                        cowboy = ImageIO.read(iF);
+
+                    }
+                    catch (Exception ex) {
+
+                    }
+               // }
+
+
+
+
+
+
+
+                japan.repaint();
+            }
+        };
+        JMenuItem searchFaceMenu = new  JMenuItem(searchFaceAction);
+        masks.add(searchFaceMenu);
+
+
 
 
 
@@ -1024,6 +1098,27 @@ public class GUI {
         f.setLayout(null);
         f.setVisible(true);
     }
+    private Mat bufferedImageToMat(BufferedImage bi) {
+        Mat mat = new Mat(bi.getHeight(), bi.getWidth(), CvType.CV_8UC3);
+        byte[] data = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
+        mat.put(0, 0, data);
+        return mat;
+    }
+    private BufferedImage convertMatToImage(Mat mat) {
+
+        int type = BufferedImage.TYPE_BYTE_GRAY;
+        if (mat.channels() > 1) {
+            type = BufferedImage.TYPE_3BYTE_BGR;
+        }
+
+        int bufferSize = mat.channels() * mat.cols() * mat.rows();
+        byte[] bytes = new byte[bufferSize];
+        mat.get(0, 0, bytes);
+        BufferedImage image = new BufferedImage(mat.cols(), mat.rows(), type);
+        final byte[] targetPixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+        System.arraycopy(bytes, 0, targetPixels, 0, bytes.length);
+        return image;
+    }
     private int[] copyFromBufferedImage(BufferedImage bi)  {
         int[] pict = new int[height*width];
         for (int i = 0; i < height; i++)
@@ -1038,6 +1133,11 @@ public class GUI {
                 bi.setRGB(j, i, pixels1[i*width +j]);
         return bi;
     }
+
+
+
+
+
     // Фильтр картинок
     class TextFileFilter extends FileFilter
     {
@@ -1067,12 +1167,17 @@ public class GUI {
             super(title);
         }
     }
+
     class MyPanel extends JPanel
     {
         public MyPanel()
         { }
+
+
+
         public void paintComponent (Graphics g)
         {
+
             if(imag==null)
             {
                 imag = new  BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
@@ -1082,6 +1187,9 @@ public class GUI {
             }
             super.paintComponent(g);
             g.drawImage(imag, 0, 0,this);
+            if(maska==true) {
+                g.drawImage(cowboy,faceX-75,faceY-250,this);
+            }
         }
     }
 
