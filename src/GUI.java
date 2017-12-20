@@ -3,20 +3,18 @@ import  java.awt.geom.*;
 import  java.awt.event.*;
 import  java.io.*;
 import  javax.swing.*;
-import javax.swing.border.Border;
+import  javax.swing.border.Border;
 import  javax.swing.event.*;
 import  java.awt.image.*;
 import  javax.imageio.*;
 import  javax.swing.filechooser.FileFilter;
-import java.util.Arrays;
-
-import org.opencv.core.*;
-import org.opencv.core.Point;
-import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
-import org.opencv.objdetect.CascadeClassifier;
-
-import static org.opencv.core.CvType.CV_8UC;
+import  java.util.Arrays;
+import  org.opencv.core.*;
+import  org.opencv.core.Point;
+import  org.opencv.imgcodecs.Imgcodecs;
+import  org.opencv.imgproc.Imgproc;
+import  org.opencv.objdetect.CascadeClassifier;
+import  static org.opencv.core.CvType.CV_8UC;
 
 public class GUI {
     int  rezhim=100;
@@ -35,14 +33,10 @@ public class GUI {
     int delta; //для rgb
     MyFrame f;
     Color maincolor;
-
     MyPanel japan;
-
     BufferedImage imag, cowboy;
     private String fileName;
-
     // если мы загружаем картинку
-
     JColorChooser tcc;
     JButton colorbutton;
     private int     height;             // высота изображения
@@ -59,23 +53,17 @@ public class GUI {
     public int getBlue(int color)       { return color  & 0xFF;}        // получить синюю   составляющую цвета
 
     public GUI() {
-
         f = new MyFrame("Графический редактор");
         f.setSize(800,800);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
         maincolor=Color.black;
-
         JMenuBar menuBar = new  JMenuBar();
-
         f.setJMenuBar(menuBar);
         menuBar.setBounds(0,0,350,30);
         JMenu fileMenu = new  JMenu("Файл");
         menuBar.add(fileMenu);
-
         JMenu colorСorrection = new JMenu("Коррекция");
         menuBar.add(colorСorrection);
-
         JMenu draw = new JMenu("Рисование");
         menuBar.add(draw);
         JMenu masks = new JMenu("Маски");
@@ -106,8 +94,6 @@ public class GUI {
         JMenuItem aboutMenu = new  JMenuItem(aboutAction);
         help.add(aboutMenu);
 
-
-
         Action searchFaceAction = new  AbstractAction("Ковбой")
         {
             public void actionPerformed(ActionEvent event)
@@ -125,50 +111,26 @@ public class GUI {
                     System.out.println(rect.y);
                     faceX = rect.x;
                     faceY = rect.y;
-                    //Imgproc.rectangle(image, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height),
-                      //      new Scalar(250, 100, 100), 2);
+                    Imgproc.rectangle(image, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height),
+                            new Scalar(250, 100, 100), 2);
                 }
 
                 imag = convertMatToImage(image);
-
-
-
-                //JFileChooser jf= new  JFileChooser();
-                //int  result = jf.showOpenDialog(null);
-                //if(result==JFileChooser.APPROVE_OPTION)
-                //{
                     try
                     {
                         // при выборе изображения подстраиваем размеры формы
                         // и панели под размеры данного изображения
                         fileName = "image/cowboy.png";
                         File iF= new  File(fileName);
-                        //jf.addChoosableFileFilter(new TextFileFilter(".png"));
-                        //jf.addChoosableFileFilter(new TextFileFilter(".jpg"));
                         cowboy = ImageIO.read(iF);
-
                     }
                     catch (Exception ex) {
-
                     }
-               // }
-
-
-
-
-
-
-
                 japan.repaint();
             }
         };
         JMenuItem searchFaceMenu = new  JMenuItem(searchFaceAction);
         masks.add(searchFaceMenu);
-
-
-
-
-
 
         Action loadAction = new  AbstractAction("Загрузить")
         {
@@ -216,7 +178,6 @@ public class GUI {
         Action drawing = new AbstractAction("Инструменты") {
             public void actionPerformed(ActionEvent e) {
                 JButton colbutton = new  JButton(new ImageIcon("image/colorbotle 15.40.12.png"));
-                //colorbutton.setBackground(maincolor);
                 colbutton.setBounds(20, 10, 30, 30);
                 colbutton.addActionListener(new  ActionListener()
                 {
@@ -227,7 +188,6 @@ public class GUI {
                     }
                 });
                 f.add(colbutton);
-
 
                 JButton penbutton = new  JButton(new  ImageIcon("image/pen.png"));
                 penbutton.setBounds(100,10,30,30);
@@ -313,7 +273,6 @@ public class GUI {
 
         Action colorAction = new AbstractAction("Цвета") {
             public void actionPerformed(ActionEvent e) {
-
                 JButton redbutton = new  JButton();
                 redbutton.setBackground(Color.RED);
                 redbutton.setBounds(10, 60, 20, 20);
@@ -377,7 +336,6 @@ public class GUI {
                         colorbutton.setBackground(maincolor);
                     }
                 });
-
                 f.add(bluebutton);
 
                 JButton cyanbutton = new  JButton();
@@ -435,13 +393,9 @@ public class GUI {
                 f.add(blackbutton);
                 f.repaint();
             }
-
         };
-
         JMenuItem colorMenu = new JMenuItem(colorAction);
         draw.add(colorMenu);
-
-
 
         Action changeDrawAction = new  AbstractAction("Шаг назад")
         {
@@ -470,8 +424,6 @@ public class GUI {
         };
         JMenuItem delCadrMenu = new  JMenuItem(delCadrAction);
         change.add(delCadrMenu);
-
-
 
         Action saveAction = new  AbstractAction("Сохранить")
         {
@@ -551,7 +503,6 @@ public class GUI {
         JMenuItem saveasMenu = new  JMenuItem(saveasAction);
         fileMenu.add(saveasMenu);
 
-
         Action brightAction = new AbstractAction("Яркость") {
             public void actionPerformed(ActionEvent e) {
 
@@ -589,7 +540,6 @@ public class GUI {
                                     if (G > 255) G = 255;
                                     if (B < 0) B = 0;
                                     if (B > 255) B = 255;
-
                                     pixels[i * width + j] = (R << 16) | (G << 8) | (B);
                                 }
                             imag = copyToBufferedImage(pixels);
@@ -598,14 +548,11 @@ public class GUI {
                     });
                 }
         };
-
         JMenuItem brightMenu = new JMenuItem(brightAction);
         colorСorrection.add(brightMenu);
 
-
         Action contrastAction = new AbstractAction("Контрастность") {
             public void actionPerformed(ActionEvent e) {
-
                 JSlider slider = new JSlider(-12,12,0);
                 JFrame frame = new JFrame();
                 frame.setTitle("Контрастность");
@@ -620,7 +567,6 @@ public class GUI {
                         del = slider.getValue();
                         //System.out.print(del);
                         pixels = copyFromBufferedImage(imag);
-//                            System.out.println(pixels[1]);
                         for(int i = 0; i < height; i++)
                             for (int j = 0; j < width; j++){
                                 int R;
@@ -646,7 +592,6 @@ public class GUI {
                                 if (G > 255) G = 255;
                                 if (B < 0) B = 0;
                                 if (B > 255) B = 255;
-
                                 pixels[i * width + j] = (R << 16) | (G << 8) | (B);
                             }
                         imag = copyToBufferedImage(pixels);
@@ -657,8 +602,6 @@ public class GUI {
         };
         JMenuItem contrastMenu = new JMenuItem(contrastAction);
         colorСorrection.add(contrastMenu);
-
-
 
         Action cutAction = new AbstractAction("Кадрирование") {
             public void actionPerformed(ActionEvent e) {
@@ -672,7 +615,6 @@ public class GUI {
                                            }
                      public void mouseReleased(MouseEvent e) {
                          if (e.getButton() == MouseEvent.BUTTON3) {
-
                              wx = e.getX();
                              wy = e.getY();
                              int w = wx - x;
@@ -685,14 +627,9 @@ public class GUI {
                 });
                 japan.repaint();
             }
-
         };
-
         JMenuItem cutMenu = new JMenuItem(cutAction);
         colorСorrection.add(cutMenu);
-
-
-
 
         Action bwAction = new AbstractAction("Черно-белое") {
             public void actionPerformed(ActionEvent e) {
@@ -735,7 +672,6 @@ public class GUI {
                 pixels = copyFromBufferedImage(imag);
                 // Чтобы работать с неизмененными данными скопируем в новый массив
                 int[] arrnew= Arrays.copyOf(pixels, width*height);
-
                 for (int j = 1; j < height-1; j++)
                     for (int i = 1; i < width-1; i++) {
                         // покомпонентно применяем фильтр усиления резкости
@@ -762,7 +698,6 @@ public class GUI {
                                         getBlue(getPixel(i+1,j-1)) + getBlue(getPixel(i+1,j)) + getBlue(getPixel(i+1,j+1)))/10;
                         if (newBlue > 255) newBlue=255;  // Отсекаем при превышении границ байта
                         if (newBlue < 0)   newBlue=0;
-
                         arrnew[j * width + i] = newBlue + (newGreen << 8) + (newRed << 16);
                     }
                 pixels = arrnew;
@@ -773,15 +708,12 @@ public class GUI {
         JMenuItem sharpnessMenu = new JMenuItem(sharpnessAction);
         colorСorrection.add(sharpnessMenu);
 
-
-
         Action blurAction = new AbstractAction("Размытие +") {
             public void actionPerformed(ActionEvent e) {
                 lastPixels = copyFromBufferedImage(imag);
                 pixels = copyFromBufferedImage(imag);
                 // Чтобы работать с неизмененными данными скопируем в новый массив
                 int[] arrnew= Arrays.copyOf(pixels, width*height);
-
                 for (int j = 1; j < height-1; j++)
                     for (int i = 1; i < width-1; i++) {
                         // матрица свертки
@@ -808,7 +740,6 @@ public class GUI {
                                         getBlue(getPixel(i+1,j-1)) + getBlue(getPixel(i+1,j)) + getBlue(getPixel(i+1,j+1)))/10;
                         if (newBlue > 255) newBlue=255;  // Отсекаем при превышении границ байта
                         if (newBlue < 0)   newBlue=0;
-
                         arrnew[j * width + i] = newBlue + (newGreen << 8) + (newRed << 16);
                     }
                 pixels = arrnew;
@@ -819,18 +750,12 @@ public class GUI {
         JMenuItem blurMenu = new JMenuItem(blurAction);
         colorСorrection.add(blurMenu);
 
-
-
-
-
         Action greenAction = new AbstractAction("RGB") {
             public void actionPerformed(ActionEvent e) {
                 JLabel red = new JLabel("Red");
                 JLabel green = new JLabel("Green");
                 JLabel blue = new JLabel("Blue");
-
                 JSlider sliderr = new JSlider(-50,50,0);
-
                 JSlider sliderg = new JSlider(-50,50,0);
                 JSlider sliderb = new JSlider(-50,50,0);
                 JFrame frame = new JFrame();
@@ -908,7 +833,6 @@ public class GUI {
                         delta = 0;
                     }
                 });
-
             }
         };
         JMenuItem greenMenu = new JMenuItem(greenAction);
@@ -919,8 +843,6 @@ public class GUI {
         japan.setBackground(Color.white);
         japan.setOpaque(true);
         f.add(japan);
-
-
 
         tcc = new  JColorChooser(maincolor);
         tcc.getSelectionModel().addChangeListener(new  ChangeListener()
@@ -968,7 +890,6 @@ public class GUI {
         japan.addMouseListener(new  MouseAdapter()
         {
             public void mouseClicked(MouseEvent e) {
-
                 Graphics g = imag.getGraphics();
                 Graphics2D g2 = (Graphics2D)g;
                 // установка цвета
@@ -1075,7 +996,6 @@ public class GUI {
                 }
             }
         });
-
         //расширение
         f.addComponentListener(new  ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent evt) {
@@ -1094,23 +1014,22 @@ public class GUI {
                 }
             }
         });
-
         f.setLayout(null);
         f.setVisible(true);
     }
+
     private Mat bufferedImageToMat(BufferedImage bi) {
         Mat mat = new Mat(bi.getHeight(), bi.getWidth(), CvType.CV_8UC3);
         byte[] data = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
         mat.put(0, 0, data);
         return mat;
     }
-    private BufferedImage convertMatToImage(Mat mat) {
 
+    private BufferedImage convertMatToImage(Mat mat) {
         int type = BufferedImage.TYPE_BYTE_GRAY;
         if (mat.channels() > 1) {
             type = BufferedImage.TYPE_3BYTE_BGR;
         }
-
         int bufferSize = mat.channels() * mat.cols() * mat.rows();
         byte[] bytes = new byte[bufferSize];
         mat.get(0, 0, bytes);
@@ -1119,6 +1038,7 @@ public class GUI {
         System.arraycopy(bytes, 0, targetPixels, 0, bytes.length);
         return image;
     }
+
     private int[] copyFromBufferedImage(BufferedImage bi)  {
         int[] pict = new int[height*width];
         for (int i = 0; i < height; i++)
@@ -1126,6 +1046,7 @@ public class GUI {
                 pict[i*width + j] = bi.getRGB(j, i) & 0xFFFFFF; // 0xFFFFFF: записываем только 3 младших байта RGB
         return pict;
     }
+
     private BufferedImage copyToBufferedImage(int[] pixels1)  {
         BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int i = 0; i < height; i++)
@@ -1133,10 +1054,6 @@ public class GUI {
                 bi.setRGB(j, i, pixels1[i*width +j]);
         return bi;
     }
-
-
-
-
 
     // Фильтр картинок
     class TextFileFilter extends FileFilter
@@ -1173,8 +1090,6 @@ public class GUI {
         public MyPanel()
         { }
 
-
-
         public void paintComponent (Graphics g)
         {
 
@@ -1202,5 +1117,4 @@ public class GUI {
             setSize(200, 200);
         }
     }
-
 }
